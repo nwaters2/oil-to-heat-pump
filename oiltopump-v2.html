@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OilToPump Proof 2.0 — Heat Pump Feasibility Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        forest: { 50:'#f0fdf4', 100:'#dcfce7', 200:'#bbf7d0', 300:'#86efac', 400:'#4ade80', 500:'#22c55e', 600:'#16a34a', 700:'#15803d', 800:'#166534', 900:'#14532d', 950:'#052e16' },
+        ember: { 400:'#fb923c', 500:'#f97316', 600:'#ea580c', 700:'#c2410c' },
+        slate: { 850:'#1a2332' }
+      },
+      fontFamily: {
+        display: ['Playfair Display', 'Georgia', 'serif'],
+        body: ['Plus Jakarta Sans', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  .font-display { font-family: 'Playfair Display', Georgia, serif; }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #f0fdf4; }
+  ::-webkit-scrollbar-thumb { background: #86efac; border-radius: 3px; }
+
+  /* Animated gradient hero */
+  .hero-bg {
+    background: linear-gradient(135deg, #052e16 0%, #14532d 30%, #166534 55%, #0f4c28 80%, #052e16 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+  }
+  @keyframes gradientShift {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Leaf pattern overlay */
+  .leaf-pattern {
+    background-image: radial-gradient(circle at 20% 30%, rgba(74,222,128,0.06) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 70%, rgba(34,197,94,0.08) 0%, transparent 50%),
+                      radial-gradient(circle at 50% 90%, rgba(16,185,129,0.04) 0%, transparent 40%);
+  }
+
+  /* Progress steps */
+  .step-line::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 20px);
+    right: calc(-50% + 20px);
+    height: 2px;
+    background: #bbf7d0;
+    transform: translateY(-50%);
+  }
+  .step-line.active::after { background: #16a34a; }
+  .step-line:last-child::after { display: none; }
+
+  /* Card hover effects */
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(22,163,74,0.12);
+  }
+
+  /* Input focus rings */
+  .inp {
+    border: 1.5px solid #d1fae5;
+    border-radius: 10px;
+    padding: 12px 16px;
+    width: 100%;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.95rem;
+    background: #f0fdf4;
+    color: #052e16;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .inp:focus {
+    outline: none;
+    border-color: #16a34a;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(22,163,74,0.1);
+  }
+  select.inp {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+
+  /* Metric cards */
+  .metric-glow {
+    box-shadow: 0 0 0 1px rgba(22,163,74,0.15), 0 4px 20px rgba(22,163,74,0.08);
+  }
+
+  /* Bar chart bars */
+  .bar-fill {
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Savings number animation */
+  @keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .count-animate { animation: countUp 0.6s ease forwards; }
+
+  /* Section fade-in */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeInUp 0.5s ease forwards; }
+  .fade-in-delay-1 { animation: fadeInUp 0.5s ease 0.1s both; }
+  .fade-in-delay-2 { animation: fadeInUp 0.5s ease 0.2s both; }
+  .fade-in-delay-3 { animation: fadeInUp 0.5s ease 0.3s both; }
+
+  /* Stripe button shimmer */
+  .stripe-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .stripe-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer {
+    100% { left: 150%; }
+  }
+
+  /* Pulse dot */
+  .pulse-dot::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* Checklist items */
+  .check-item:hover { background: #f0fdf4; }
+
+  /* Print / hidden utility */
+  .hidden { display: none !important; }
+
+  /* Tooltip */
+  .tooltip-wrap:hover .tooltip-box { display: block; }
+  .tooltip-box { display: none; }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- ═══════════════════════════════════════════════
+     STICKY HEADER
+═══════════════════════════════════════════════ -->
+<header class="sticky top-0 z-50 bg-white border-b border-forest-100 shadow-sm">
+  <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-forest-700 flex items-center justify-center text-white text-sm font-bold">⚡</div>
+      <span class="font-display font-bold text-forest-900 text-lg tracking-tight">OilToPump <span class="text-forest-600 italic">Proof</span></span>
+      <span class="hidden sm:inline-flex items-center gap-1 ml-2 bg-forest-100 text-forest-700 text-xs font-semibold px-2 py-0.5 rounded-full font-mono">v2.0 · 2026</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-gray-500 hidden sm:block">Full report</span>
+      <span class="bg-forest-600 text-white text-sm font-bold px-3 py-1.5 rounded-lg">$14.99</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section class="hero-bg leaf-pattern py-16 sm:py-24 px-4">
+  <div class="max-w-3xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 bg-forest-800/60 border border-forest-600/40 text-forest-300 text-xs font-mono uppercase tracking-widest px-4 py-2 rounded-full mb-6 pulse-dot">
+      Northeast Heat Pump Feasibility Tool
+    </div>
+    <h1 class="font-display text-white text-4xl sm:text-6xl font-bold leading-tight mb-4">
+      Should you ditch oil<br>for a <span class="text-forest-400 italic">heat pump?</span>
+    </h1>
+    <p class="text-forest-200 text-lg sm:text-xl font-light max-w-xl mx-auto mb-8 leading-relaxed">
+      Enter your home details. Get a 3-page professional PDF report with savings projections, 2026 rebates, and a contractor checklist — in 60 seconds.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-forest-300">
+      <span class="flex items-center gap-1.5"><span class="text-forest-400">✓</span> Manual J Load Calc</span>
+      <span class="flex items-center gap-1.5"><span class="text-forest-400">✓</span> 2026 State Rebates</span>
+      <span class="flex items-center gap-1.5"><span class="text-forest-400">✓</span> NEC 220.82 Panel Check</span>
+      <span class="flex items-center gap-1.5"><span class="text-forest-400">✓</span> 10-Year Savings Model</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     PROGRESS STEPS
+═══════════════════════════════════════════════ -->
+<div class="bg-white border-b border-gray-100 sticky top-14 z-40">
+  <div class="max-w-3xl mx-auto px-4 py-3">
+    <div class="flex items-center justify-between">
+      <div id="step-1" class="flex items-center gap-2 flex-1">
+        <div class="w-7 h-7 rounded-full bg-forest-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+        <span class="text-sm font-semibold text-forest-700 hidden sm:block">Your Home</span>
+        <div class="flex-1 h-0.5 bg-forest-200 mx-2 hidden sm:block"></div>
+      </div>
+      <div id="step-2" class="flex items-center gap-2 flex-1">
+        <div class="w-7 h-7 rounded-full bg-gray-200 text-gray-400 text-xs font-bold flex items-center justify-center flex-shrink-0">2</div>
+        <span class="text-sm font-medium text-gray-400 hidden sm:block">Analysis</span>
+        <div class="flex-1 h-0.5 bg-gray-200 mx-2 hidden sm:block"></div>
+      </div>
+      <div id="step-3" class="flex items-center gap-2 flex-1">
+        <div class="w-7 h-7 rounded-full bg-gray-200 text-gray-400 text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
+        <span class="text-sm font-medium text-gray-400 hidden sm:block">Savings</span>
+        <div class="flex-1 h-0.5 bg-gray-200 mx-2 hidden sm:block"></div>
+      </div>
+      <div id="step-4" class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-full bg-gray-200 text-gray-400 text-xs font-bold flex items-center justify-center flex-shrink-0">4</div>
+        <span class="text-sm font-medium text-gray-400 hidden sm:block">Report</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-3xl mx-auto px-4 py-8 pb-20">
+
+<!-- ═══════════════════════════════════════════════
+     STEP 1: INPUT FORM
+═══════════════════════════════════════════════ -->
+<div id="section-form" class="fade-in">
+  <div class="bg-white rounded-2xl shadow-sm border border-forest-100 overflow-hidden">
+
+    <!-- Form header -->
+    <div class="bg-gradient-to-r from-forest-700 to-forest-600 px-6 py-5">
+      <h2 class="font-display text-white text-2xl font-bold">Your Home Details</h2>
+      <p class="text-forest-200 text-sm mt-1">All fields used in the engineering analysis. Takes ~90 seconds.</p>
+    </div>
+
+    <div class="p-6 space-y-6">
+
+      <!-- Location block -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-6 h-6 rounded-full bg-forest-100 text-forest-700 text-xs font-bold flex items-center justify-center">📍</span>
+          <span class="text-xs font-mono font-semibold text-forest-600 uppercase tracking-widest">Location & Structure</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">ZIP Code <span class="text-red-400">*</span></label>
+            <input id="zip" type="text" placeholder="02134" maxlength="5" class="inp" oninput="onZipInput(this.value)">
+            <p class="text-xs text-gray-400 mt-1">Auto-fills state & rates</p>
+          </div>
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">State <span class="text-red-400">*</span></label>
+            <select id="state" class="inp" onchange="onStateChange(this.value)">
+              <option value="">Select state…</option>
+              <option value="MA">Massachusetts</option>
+              <option value="CT">Connecticut</option>
+              <option value="RI">Rhode Island</option>
+              <option value="NH">New Hampshire</option>
+              <option value="VT">Vermont</option>
+              <option value="ME">Maine</option>
+              <option value="NY">New York</option>
+              <option value="NJ">New Jersey</option>
+              <option value="PA">Pennsylvania</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Heated Square Footage <span class="text-red-400">*</span></label>
+            <input id="sqft" type="number" placeholder="e.g. 1,800" min="400" max="8000" class="inp">
+            <p class="text-xs text-gray-400 mt-1">Total conditioned living area</p>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Insulation Level <span class="text-red-400">*</span></label>
+            <select id="insulation" class="inp">
+              <option value="">Select insulation level…</option>
+              <option value="poor">Poor — Pre-1978, uninsulated attic/walls (R-7 or less)</option>
+              <option value="average">Average — Some upgrades, R-11 to R-19 walls</option>
+              <option value="good">Good — Modern, R-30+ attic, R-19+ walls</option>
+              <option value="excellent">Excellent — Near-passive, spray foam, triple pane</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-dashed border-forest-100"></div>
+
+      <!-- Oil System block -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-6 h-6 rounded-full bg-amber-50 text-amber-600 text-xs font-bold flex items-center justify-center">🛢️</span>
+          <span class="text-xs font-mono font-semibold text-amber-700 uppercase tracking-widest">Current Oil System</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Annual Oil Usage (gal) <span class="text-red-400">*</span></label>
+            <input id="gallons" type="number" placeholder="e.g. 800" min="100" max="3000" class="inp">
+            <p class="text-xs text-gray-400 mt-1">Check your delivery receipts</p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Heating System Type <span class="text-red-400">*</span></label>
+            <select id="heating" class="inp">
+              <option value="">Select type…</option>
+              <option value="forced_air">Forced Air (Oil Furnace)</option>
+              <option value="hydronic">Hydronic Baseboard (Boiler)</option>
+              <option value="steam">Steam Radiators</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-dashed border-forest-100"></div>
+
+      <!-- Electrical block -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-6 h-6 rounded-full bg-yellow-50 text-yellow-600 text-xs font-bold flex items-center justify-center">⚡</span>
+          <span class="text-xs font-mono font-semibold text-yellow-700 uppercase tracking-widest">Electrical System</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Panel Amperage <span class="text-red-400">*</span></label>
+            <select id="amps" class="inp">
+              <option value="">Select panel size…</option>
+              <option value="60">60A — Older panel</option>
+              <option value="100">100A — Standard</option>
+              <option value="150">150A — Mid-size</option>
+              <option value="200">200A — Large / upgraded</option>
+              <option value="400">400A — Commercial / high-end</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Electric Rate (¢/kWh)</label>
+            <input id="elec_rate" type="number" placeholder="Auto-filled" min="8" max="50" step="0.1" class="inp" id="elec_rate">
+            <p class="text-xs text-gray-400 mt-1" id="rate-hint">Auto-filled from state avg</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="pt-2">
+        <button onclick="runAnalysis()" id="analyze-btn"
+          class="w-full bg-forest-600 hover:bg-forest-700 active:scale-[0.99] text-white font-bold text-lg py-4 rounded-xl transition-all duration-150 flex items-center justify-center gap-3 shadow-lg shadow-forest-200">
+          <span>⚡</span>
+          <span>Analyze My Home</span>
+        </button>
+        <p class="text-center text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
+          <span>🔒</span> No data stored · Analysis runs in your browser
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     LOADING
+═══════════════════════════════════════════════ -->
+<div id="section-loading" class="hidden py-20 text-center">
+  <div class="inline-flex flex-col items-center gap-4">
+    <div class="relative w-16 h-16">
+      <div class="absolute inset-0 rounded-full border-4 border-forest-100"></div>
+      <div class="absolute inset-0 rounded-full border-4 border-forest-600 border-t-transparent animate-spin"></div>
+      <div class="absolute inset-0 flex items-center justify-center text-2xl">⚡</div>
+    </div>
+    <div>
+      <p class="font-semibold text-forest-800" id="loading-msg">Running feasibility analysis…</p>
+      <p class="text-sm text-gray-400 mt-1">Calculating heating load, costs & incentives</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     RESULTS SECTION
+═══════════════════════════════════════════════ -->
+<div id="section-results" class="hidden space-y-6">
+
+  <!-- VERDICT BANNER -->
+  <div id="verdict-card" class="rounded-2xl p-5 border-2 fade-in flex items-start gap-4">
+    <div class="text-4xl flex-shrink-0" id="verdict-icon">✅</div>
+    <div class="flex-1">
+      <div class="font-mono text-xs uppercase tracking-widest mb-1 opacity-70" id="verdict-label">VERDICT</div>
+      <h2 class="font-display text-xl sm:text-2xl font-bold leading-tight" id="verdict-title">—</h2>
+      <p class="text-sm mt-2 opacity-80 leading-relaxed" id="verdict-desc">—</p>
+    </div>
+  </div>
+
+  <!-- BIG NUMBERS -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 fade-in-delay-1">
+    <div class="bg-white rounded-xl p-4 border border-forest-100 metric-glow card-hover">
+      <div class="font-mono text-xs text-gray-400 uppercase tracking-wide mb-1">Peak Load</div>
+      <div class="font-display text-2xl font-bold text-forest-800" id="m-load">—</div>
+      <div class="text-xs text-gray-400 mt-0.5">BTU/hr</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 border border-forest-100 metric-glow card-hover">
+      <div class="font-mono text-xs text-gray-400 uppercase tracking-wide mb-1">HP Size</div>
+      <div class="font-display text-2xl font-bold text-forest-700" id="m-tons">—</div>
+      <div class="text-xs text-gray-400 mt-0.5">tons needed</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 border border-amber-100 card-hover">
+      <div class="font-mono text-xs text-amber-500 uppercase tracking-wide mb-1">Oil Cost</div>
+      <div class="font-display text-2xl font-bold text-amber-600" id="m-oil-cost">—</div>
+      <div class="text-xs text-gray-400 mt-0.5">per year</div>
+    </div>
+    <div class="bg-white rounded-xl p-4 border border-forest-100 metric-glow card-hover">
+      <div class="font-mono text-xs text-forest-600 uppercase tracking-wide mb-1">HP Cost</div>
+      <div class="font-display text-2xl font-bold text-forest-600" id="m-hp-cost">—</div>
+      <div class="text-xs text-gray-400 mt-0.5">per year</div>
+    </div>
+  </div>
+
+  <!-- ANNUAL SAVINGS HERO -->
+  <div id="savings-hero" class="bg-forest-700 rounded-2xl p-6 text-white fade-in-delay-2 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-48 h-48 bg-forest-600/30 rounded-full translate-x-12 -translate-y-12"></div>
+    <div class="absolute bottom-0 left-0 w-32 h-32 bg-forest-800/40 rounded-full -translate-x-8 translate-y-8"></div>
+    <div class="relative">
+      <div class="font-mono text-forest-300 text-xs uppercase tracking-widest mb-2">Estimated Annual Savings</div>
+      <div class="font-display text-5xl sm:text-6xl font-bold text-white count-animate" id="big-savings">$0</div>
+      <div class="text-forest-200 mt-2 text-sm" id="savings-detail">Per year switching from oil to heat pump</div>
+      <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="bg-forest-600/50 rounded-xl p-3">
+          <div class="text-forest-300 text-xs mb-1">Payback Period</div>
+          <div class="text-white font-bold text-lg" id="m-payback">—</div>
+        </div>
+        <div class="bg-forest-600/50 rounded-xl p-3">
+          <div class="text-forest-300 text-xs mb-1">10-Year Net Savings</div>
+          <div class="text-white font-bold text-lg" id="m-10yr">—</div>
+        </div>
+        <div class="bg-forest-600/50 rounded-xl p-3 col-span-2 sm:col-span-1">
+          <div class="text-forest-300 text-xs mb-1">After-Incentive Cost</div>
+          <div class="text-white font-bold text-lg" id="m-net-install">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COST BAR CHART -->
+  <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm fade-in-delay-2">
+    <h3 class="font-display text-lg font-bold text-gray-800 mb-4">📊 10-Year Cumulative Cost</h3>
+    <div class="space-y-4">
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="text-sm font-semibold text-amber-700 flex items-center gap-2">🛢️ Stick with Oil</span>
+          <span class="font-mono text-sm font-bold text-amber-600" id="chart-oil-label">$0</span>
+        </div>
+        <div class="h-9 bg-amber-50 rounded-lg overflow-hidden border border-amber-100">
+          <div id="bar-oil" class="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-lg bar-fill flex items-center px-3" style="width:0%">
+            <span class="text-white text-xs font-bold opacity-0" id="bar-oil-pct"></span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="text-sm font-semibold text-forest-700 flex items-center gap-2">⚡ Switch to Heat Pump</span>
+          <span class="font-mono text-sm font-bold text-forest-600" id="chart-hp-label">$0</span>
+        </div>
+        <div class="h-9 bg-forest-50 rounded-lg overflow-hidden border border-forest-100">
+          <div id="bar-hp" class="h-full bg-gradient-to-r from-forest-500 to-forest-600 rounded-lg bar-fill flex items-center px-3" style="width:0%">
+            <span class="text-white text-xs font-bold opacity-0" id="bar-hp-pct"></span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-forest-50 rounded-xl p-3 flex items-center justify-between border border-forest-100">
+        <span class="text-sm text-forest-700 font-medium">10-Year Net Advantage</span>
+        <span class="font-display font-bold text-forest-700 text-lg" id="chart-diff">—</span>
+      </div>
+    </div>
+    <p class="text-xs text-gray-400 mt-3">* Heat pump total includes installation cost minus incentives. Oil = ongoing fuel only.</p>
+  </div>
+
+  <!-- PANEL CHECK -->
+  <div id="panel-card" class="bg-white rounded-2xl p-5 border shadow-sm fade-in">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-display text-lg font-bold text-gray-800">⚡ Panel Assessment (NEC 220.82)</h3>
+      <span id="panel-badge" class="text-xs font-mono font-bold px-3 py-1 rounded-full">—</span>
+    </div>
+    <div class="space-y-2" id="panel-rows"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MAXIMIZE SAVINGS SECTION (incentives preview)
+  ═══════════════════════════════════════════════ -->
+  <div class="bg-gradient-to-br from-forest-800 to-forest-900 rounded-2xl p-5 text-white fade-in">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-xl">💰</span>
+      <div class="font-mono text-forest-300 text-xs uppercase tracking-widest">Maximize Savings</div>
+    </div>
+    <h3 class="font-display text-xl font-bold text-white mb-1">2026 Available Rebates & Incentives</h3>
+    <p class="text-forest-300 text-sm mb-4">Auto-detected for your state. Stack these to maximize savings.</p>
+
+    <div id="incentives-table" class="space-y-2 mb-4"></div>
+
+    <!-- Total -->
+    <div class="border-t border-forest-600 pt-3 flex items-center justify-between">
+      <span class="font-bold text-white">Total Available Incentives</span>
+      <span class="font-display text-2xl font-bold text-forest-300" id="total-incentives">—</span>
+    </div>
+
+    <!-- NE Heat Pump Accelerator note -->
+    <div class="mt-3 bg-forest-700/50 border border-forest-600/50 rounded-xl p-3">
+      <div class="flex items-start gap-2">
+        <span class="text-lg flex-shrink-0">🚀</span>
+        <div>
+          <div class="text-sm font-bold text-forest-200">New England Heat Pump Accelerator</div>
+          <div class="text-xs text-forest-400 mt-0.5">Additional $500–$700 savings available through the regional NE Heat Pump Accelerator program. Participating contractors provide discounts at point of sale — ask your installer.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Federal note -->
+    <div class="mt-2 bg-red-900/30 border border-red-700/30 rounded-xl p-3">
+      <div class="text-xs text-red-300 flex items-start gap-2">
+        <span>⚠️</span>
+        <span><strong>Federal 25C tax credit expired in 2025.</strong> The IRA residential clean energy credits were not extended past 2025. State and utility programs remain active for 2026.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       CHECKOUT
+  ═══════════════════════════════════════════════ -->
+  <div class="bg-gray-900 rounded-2xl overflow-hidden shadow-xl fade-in">
+    <div class="bg-gradient-to-r from-forest-700 to-forest-600 px-6 py-4">
+      <div class="font-mono text-forest-200 text-xs uppercase tracking-widest mb-1">Your Personalized PDF Report</div>
+      <h3 class="font-display text-white text-2xl font-bold">Get the Full 3-Page Report</h3>
+    </div>
+    <div class="p-6">
+      <p class="text-gray-300 text-sm mb-5 leading-relaxed">Your free preview is above. The full report is a print-ready PDF you can hand to HVAC contractors — includes complete calculations, itemized rebate worksheet, and the full installer checklist.</p>
+
+      <div class="grid sm:grid-cols-3 gap-3 mb-6">
+        <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <div class="text-2xl mb-2">📄</div>
+          <div class="text-white font-semibold text-sm mb-1">Page 1: Cover</div>
+          <div class="text-gray-400 text-xs">Savings summary, BTU analysis, cost comparison chart</div>
+        </div>
+        <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <div class="text-2xl mb-2">💰</div>
+          <div class="text-white font-semibold text-sm mb-1">Page 2: Rebates</div>
+          <div class="text-gray-400 text-xs">State-specific 2026 incentives, financing options, loan programs</div>
+        </div>
+        <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <div class="text-2xl mb-2">✅</div>
+          <div class="text-white font-semibold text-sm mb-1">Page 3: Checklist</div>
+          <div class="text-gray-400 text-xs">15-item installer checklist to hand to your licensed contractor</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 mb-5">
+        <div class="font-display text-4xl font-bold text-white">$14.99</div>
+        <div class="text-gray-400 text-sm leading-tight">One-time · No subscription<br>Instant PDF download</div>
+      </div>
+
+      <button onclick="handleStripeCheckout()" id="stripe-btn"
+        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg py-4 rounded-xl transition-all duration-150 flex items-center justify-center gap-3 stripe-shimmer shadow-lg shadow-indigo-900/50 mb-3">
+        <span>🔒</span>
+        <span>Pay $14.99 · Download Full Report</span>
+      </button>
+
+      <button onclick="downloadFreePreview()"
+        class="w-full bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium text-sm py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+        <span>👁️</span> Download Free Preview (watermarked)
+      </button>
+
+      <p class="text-center text-gray-500 text-xs mt-4 flex items-center justify-center gap-1.5">
+        <span>🔐</span> Secured by Stripe · No account · No subscription
+      </p>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-800 leading-relaxed">
+    <strong class="block mb-1">⚠️ Disclaimer</strong>
+    This tool provides estimates for informational purposes only and does not constitute professional engineering advice. Actual heating loads, equipment sizing, electrical capacity, and costs depend on site-specific conditions requiring assessment by a licensed HVAC contractor and electrician. Rebate amounts reflect 2026 program guidelines and are subject to change. Heat pump sizing and performance estimates use standard industry approximations (Manual J proxy, COP at design temperature). Always obtain multiple contractor quotes.
+  </div>
+
+</div><!-- end section-results -->
+
+<!-- ═══════════════════════════════════════════════
+     SUCCESS
+═══════════════════════════════════════════════ -->
+<div id="section-success" class="hidden text-center py-16 fade-in">
+  <div class="text-6xl mb-4">🎉</div>
+  <h2 class="font-display text-3xl font-bold text-forest-800 mb-3">Your Report is Ready!</h2>
+  <p class="text-gray-500 mb-6 max-w-sm mx-auto">Your 3-page PDF report is downloading now. Check your Downloads folder.</p>
+  <button onclick="generateFullPDF()" class="bg-forest-600 text-white font-bold px-8 py-4 rounded-xl hover:bg-forest-700 transition flex items-center gap-2 mx-auto">
+    📄 Download Again
+  </button>
+  <button onclick="resetApp()" class="mt-3 text-sm text-gray-400 hover:text-gray-600 transition block mx-auto">
+    ← Start New Analysis
+  </button>
+</div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT ENGINE
+═══════════════════════════════════════════════ -->
+<script>
+// ── STATE DATA ────────────────────────────────────
+const STATE_CONFIG = {
+  MA: {
+    name: 'Massachusetts', designTemp: -5, elecRate: 0.235,
+    rebates: [
+      { name: 'Mass Save Whole-Home Heat Pump', detail: '$2,650/ton, max $8,500 total', calc: (t) => Math.min(t * 2650, 8500), type: 'Utility Rebate' },
+      { name: 'Mass Save Cold Climate HP Bonus', detail: '+$250/ton for NEEP-listed units', calc: (t) => Math.min(t * 250, 1000), type: 'Utility Rebate' },
+      { name: 'Mass Save 0% HEAT Loan', detail: '0% financing up to $25,000', calc: () => 0, type: 'Loan (not a rebate)', note: true },
+      { name: 'Low-Income HEAR Program', detail: '$0 install possible for <80% AMI households', calc: () => 0, type: 'Low-Income Program', note: true },
+      { name: 'PACE Financing', detail: 'Property Assessed Clean Energy available statewide', calc: () => 0, type: 'Financing', note: true },
+    ]
+  },
+  CT: {
+    name: 'Connecticut', designTemp: 0, elecRate: 0.245,
+    rebates: [
+      { name: 'Energize CT Heat Pump Rebate', detail: 'Up to $10,000 for whole-home systems', calc: (t) => Math.min(t * 1500, 10000), type: 'Utility Rebate' },
+      { name: 'Energize CT 0.99% HVAC Loan', detail: '0.99% interest, up to $25,000', calc: () => 0, type: 'Low-Interest Loan', note: true },
+      { name: 'CT Green Bank PACE', detail: 'Property Assessed Clean Energy financing', calc: () => 0, type: 'Financing', note: true },
+      { name: 'UI/Eversource Ductless Bonus', detail: '$300 per ductless mini-split unit', calc: () => 300, type: 'Utility Rebate' },
+      { name: 'Low-Income CT Weatherization', detail: 'Bundled upgrades for qualifying households', calc: () => 0, type: 'Low-Income Program', note: true },
+    ]
+  },
+  RI: {
+    name: 'Rhode Island', designTemp: 0, elecRate: 0.238,
+    rebates: [
+      { name: 'RI Energy Heat Pump Rebate', detail: '$800/ton up to $4,000', calc: (t) => Math.min(t * 800, 4000), type: 'Utility Rebate' },
+      { name: 'RI Commerce PACE', detail: 'PACE financing available statewide', calc: () => 0, type: 'Financing', note: true },
+      { name: 'RI Low-Income HP Program', detail: 'Discounted or free install for qualifying households', calc: () => 0, type: 'Low-Income Program', note: true },
+    ]
+  },
+  NH: {
+    name: 'New Hampshire', designTemp: -10, elecRate: 0.218,
+    rebates: [
+      { name: 'NH Electric Co-op Rebate', detail: '$500/ton up to $2,500', calc: (t) => Math.min(t * 500, 2500), type: 'Utility Rebate' },
+      { name: 'NH Saves Energy Efficiency', detail: 'Additional rebates via NH Saves program', calc: (t) => Math.min(t * 300, 1200), type: 'State Program' },
+      { name: 'PACE Financing NH', detail: 'PACE available in participating municipalities', calc: () => 0, type: 'Financing', note: true },
+    ]
+  },
+  VT: {
+    name: 'Vermont', designTemp: -15, elecRate: 0.195,
+    rebates: [
+      { name: 'Efficiency Vermont Cold-Climate HP', detail: '$1,000/ton up to $4,000', calc: (t) => Math.min(t * 1000, 4000), type: 'State Program' },
+      { name: 'VT Fuel & Retail Tax Exemption', detail: 'HP equipment exempt from VT sales tax', calc: (t) => Math.round(t * 1200 * 0.06), type: 'Tax Exemption' },
+      { name: 'Efficiency Vermont Low-Income', detail: 'Up to full install cost for qualifying households', calc: () => 0, type: 'Low-Income Program', note: true },
+    ]
+  },
+  ME: {
+    name: 'Maine', designTemp: -15, elecRate: 0.208,
+    rebates: [
+      { name: 'Efficiency Maine Tier 1 (≤2 tons)', detail: '$500/unit, basic installation', calc: (t) => t <= 2 ? 500 : 0, type: 'State Program' },
+      { name: 'Efficiency Maine Tier 2 (2–4 tons)', detail: '$1,000/unit for larger whole-home systems', calc: (t) => t > 2 ? 1000 : 0, type: 'State Program' },
+      { name: 'Efficiency Maine Enhanced Rebate', detail: '+$1,000 for replacing fossil fuel system', calc: () => 1000, type: 'State Program' },
+      { name: 'Maine PACE Program', detail: 'Comfort Home PACE financing statewide', calc: () => 0, type: 'Financing', note: true },
+      { name: 'Maine Low-Income (EmPower ME)', detail: '$0 install possible for qualifying households', calc: () => 0, type: 'Low-Income Program', note: true },
+    ]
+  },
+  NY: {
+    name: 'New York', designTemp: -5, elecRate: 0.228,
+    rebates: [
+      { name: 'NYSERDA Heat Pump Rebate', detail: '$1,000–$3,000+ depending on system type', calc: (t) => Math.min(t * 1500, 7500), type: 'State Program' },
+      { name: 'NY Utility Rebate (Con Ed / NYSEG)', detail: 'Varies $300–$1,500 by territory', calc: () => 700, type: 'Utility Rebate' },
+      { name: 'NY Green Bank PACE', detail: 'PACE financing in eligible municipalities', calc: () => 0, type: 'Financing', note: true },
+      { name: 'NY Low-Income (EmPower NY)', detail: 'Free upgrades for income-qualifying homes', calc: () => 0, type: 'Low-Income Program', note: true },
+    ]
+  },
+  NJ: {
+    name: 'New Jersey', designTemp: 5, elecRate: 0.198,
+    rebates: [
+      { name: 'NJ Clean Energy HP Rebate', detail: '$800/ton up to $4,000', calc: (t) => Math.min(t * 800, 4000), type: 'State Program' },
+      { name: 'NJ BPU Low-Income Program', detail: 'Discounted/free install for qualifying homes', calc: () => 0, type: 'Low-Income Program', note: true },
+      { name: 'NJ PACE Financing', detail: 'New Jersey PACE available statewide', calc: () => 0, type: 'Financing', note: true },
+    ]
+  },
+  PA: {
+    name: 'Pennsylvania', designTemp: 0, elecRate: 0.178,
+    rebates: [
+      { name: 'PECO/PPL Utility HP Rebate', detail: '$600/ton up to $2,400', calc: (t) => Math.min(t * 600, 2400), type: 'Utility Rebate' },
+      { name: 'PA DEP REAP Program', detail: 'Grants for rural energy efficiency upgrades', calc: () => 0, type: 'State Grant', note: true },
+      { name: 'PA PACE Financing', detail: 'PACE available in participating counties', calc: () => 0, type: 'Financing', note: true },
+    ]
+  }
+};
+
+const INSULATION_BTU = { poor: 45, average: 35, good: 28, excellent: 22 };
+const INSULATION_EFF = { poor: 0.60, average: 0.72, good: 0.80, excellent: 0.87 };
+
+// ── ZIP → STATE MAP (prefix-based) ──
+const ZIP_STATE = {
+  '010':'MA','011':'MA','012':'MA','013':'MA','014':'MA','015':'MA','016':'MA','017':'MA','018':'MA','019':'MA',
+  '020':'MA','021':'MA','022':'MA','023':'MA','024':'MA','025':'MA','026':'MA','027':'MA',
+  '028':'RI','029':'RI',
+  '030':'NH','031':'NH','032':'NH','033':'NH','034':'NH','035':'NH','036':'NH','037':'NH','038':'NH',
+  '039':'ME','040':'ME','041':'ME','042':'ME','043':'ME','044':'ME','045':'ME','046':'ME','047':'ME','048':'ME','049':'ME',
+  '050':'VT','051':'VT','052':'VT','053':'VT','054':'VT','056':'VT','057':'VT','058':'VT','059':'VT',
+  '060':'CT','061':'CT','062':'CT','063':'CT','064':'CT','065':'CT','066':'CT','067':'CT','068':'CT','069':'CT',
+  '070':'NJ','071':'NJ','072':'NJ','073':'NJ','074':'NJ','075':'NJ','076':'NJ','077':'NJ','078':'NJ','079':'NJ','080':'NJ','081':'NJ','082':'NJ','083':'NJ','084':'NJ','085':'NJ','086':'NJ','087':'NJ','088':'NJ','089':'NJ',
+  '100':'NY','101':'NY','102':'NY','103':'NY','104':'NY','105':'NY','106':'NY','107':'NY','108':'NY','109':'NY',
+  '110':'NY','111':'NY','112':'NY','113':'NY','114':'NY','115':'NY','116':'NY','117':'NY','118':'NY','119':'NY',
+  '120':'NY','121':'NY','122':'NY','123':'NY','124':'NY','125':'NY','126':'NY','127':'NY','128':'NY','129':'NY',
+  '130':'NY','131':'NY','132':'NY','133':'NY','134':'NY','135':'NY','136':'NY','137':'NY','138':'NY','139':'NY',
+  '140':'NY','141':'NY','142':'NY','143':'NY','144':'NY','145':'NY','146':'NY','147':'NY','148':'NY','149':'NY',
+  '150':'PA','151':'PA','152':'PA','153':'PA','154':'PA','155':'PA','156':'PA','157':'PA','158':'PA','159':'PA',
+  '160':'PA','161':'PA','162':'PA','163':'PA','164':'PA','165':'PA','166':'PA','167':'PA','168':'PA','169':'PA',
+  '170':'PA','171':'PA','172':'PA','173':'PA','174':'PA','175':'PA','176':'PA','177':'PA','178':'PA','179':'PA',
+  '180':'PA','181':'PA','182':'PA','183':'PA','184':'PA','185':'PA','186':'PA','187':'PA','188':'PA','189':'PA',
+  '190':'PA','191':'PA','192':'PA','193':'PA','194':'PA','195':'PA','196':'PA',
+};
+
+let analysisData = null;
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+function onZipInput(v) {
+  if (v.length === 5) {
+    const prefix = v.substring(0, 3);
+    const st = ZIP_STATE[prefix];
+    if (st) {
+      document.getElementById('state').value = st;
+      onStateChange(st);
+    }
+  }
+}
+
+function onStateChange(st) {
+  if (!st || !STATE_CONFIG[st]) return;
+  const cfg = STATE_CONFIG[st];
+  const rateInput = document.getElementById('elec_rate');
+  const hint = document.getElementById('rate-hint');
+  rateInput.placeholder = (cfg.elecRate * 100).toFixed(1);
+  if (hint) hint.textContent = `${cfg.name} avg: ${(cfg.elecRate * 100).toFixed(1)}¢/kWh`;
+}
+
+function runAnalysis() {
+  const zip = document.getElementById('zip').value.trim();
+  const sqft = parseFloat(document.getElementById('sqft').value);
+  const insulation = document.getElementById('insulation').value;
+  const gallons = parseFloat(document.getElementById('gallons').value);
+  const heating = document.getElementById('heating').value;
+  const amps = parseFloat(document.getElementById('amps').value);
+  const state = document.getElementById('state').value;
+  const elecRateRaw = parseFloat(document.getElementById('elec_rate').value);
+
+  if (!zip || zip.length < 4 || isNaN(sqft) || !insulation || isNaN(gallons) || !heating || isNaN(amps) || !state) {
+    alert('Please fill in all required fields (marked with *) before analyzing.');
+    return;
+  }
+
+  // Advance step UI
+  setStep(2);
+  show('section-loading');
+  hide('section-form');
+
+  const msgs = ['Running Manual J load calculation…', 'Checking panel capacity (NEC 220.82)…', 'Fetching 2026 state rebates…', 'Building savings projections…'];
+  let mi = 0;
+  const msgInterval = setInterval(() => {
+    if (mi < msgs.length) document.getElementById('loading-msg').textContent = msgs[mi++];
+  }, 300);
+
+  setTimeout(() => {
+    clearInterval(msgInterval);
+    const cfg = STATE_CONFIG[state];
+    const elecRate = (elecRateRaw > 0) ? elecRateRaw / 100 : cfg.elecRate;
+
+    // Heating load
+    const btuPerSqFt = INSULATION_BTU[insulation];
+    const heatingLoad = sqft * btuPerSqFt;
+    const tons = heatingLoad / 12000;
+    const tonsRounded = Math.ceil(tons * 2) / 2;
+
+    // Oil cost
+    const OIL_BTU_GAL = 138500;
+    const oilEff = INSULATION_EFF[insulation];
+    const annualOilBTU = gallons * OIL_BTU_GAL * oilEff;
+    const OIL_PRICE = 4.89;
+    const oilCostPerYear = gallons * OIL_PRICE;
+
+    // Heat pump cost
+    const COP = cfg.designTemp <= -10 ? 1.8 : cfg.designTemp <= -5 ? 2.1 : cfg.designTemp <= 0 ? 2.4 : 2.7;
+    const hpKwhPerYear = (annualOilBTU / 3412) / COP;
+    const hpCostPerYear = hpKwhPerYear * elecRate;
+
+    const annualSavings = oilCostPerYear - hpCostPerYear;
+
+    // Rebates
+    const rebateRows = cfg.rebates.map(r => ({ ...r, amt: r.calc(tonsRounded) }));
+    const totalRebate = rebateRows.reduce((s, r) => s + r.amt, 0);
+
+    // Install cost estimate
+    const baseInstall = tonsRounded * 5500;
+    const netInstall = Math.max(0, baseInstall - totalRebate);
+    const paybackYrs = annualSavings > 0 ? netInstall / annualSavings : 99;
+
+    // 10-year
+    const oil10yr = oilCostPerYear * 10;
+    const hp10yr = netInstall + hpCostPerYear * 10;
+    const net10yr = oil10yr - hp10yr;
+
+    // Panel check (NEC 220.82)
+    const panelW = amps * 240;
+    const generalLoad = 3 * sqft; // 3W/sqft general
+    const demandLoad = generalLoad > 10000
+      ? 10000 * 1.0 + (generalLoad - 10000) * 0.4
+      : generalLoad * 1.0;
+    const hpLoadW = tonsRounded <= 2 ? 4000 : tonsRounded <= 3 ? 5500 : tonsRounded <= 4 ? 7000 : 9000;
+    const totalDemand = demandLoad + hpLoadW;
+    const panelOk = totalDemand < panelW * 0.8;
+
+    // Verdict
+    let verdict, verdictClass, verdictIcon;
+    if (annualSavings > 600 && panelOk && paybackYrs < 12) {
+      verdict = 'Strong Candidate for Heat Pump Conversion';
+      verdictClass = 'go';
+      verdictIcon = '✅';
+    } else if (annualSavings > 200 || paybackYrs < 18) {
+      verdict = 'Feasible — Review Site-Specific Details';
+      verdictClass = 'caution';
+      verdictIcon = '⚠️';
+    } else {
+      verdict = 'Proceed with Caution — Additional Analysis Needed';
+      verdictClass = 'no';
+      verdictIcon = '🔍';
+    }
+
+    analysisData = {
+      zip, sqft, insulation, gallons, heating, amps, state, elecRate,
+      heatingLoad, tons, tonsRounded, oilCostPerYear, hpCostPerYear,
+      annualSavings, panelOk, rebateRows, totalRebate,
+      netInstall, paybackYrs, oil10yr, hp10yr, net10yr,
+      baseInstall, hpKwhPerYear, COP, btuPerSqFt, oilEff,
+      verdict, verdictClass, verdictIcon, cfg,
+      panelW, totalDemand, hpLoadW, demandLoad, annualOilBTU
+    };
+
+    hide('section-loading');
+    renderResults(analysisData);
+    show('section-results');
+    setStep(3);
+    document.getElementById('section-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 1600);
+}
+
+function renderResults(d) {
+  // Verdict
+  const vcMap = {
+    go: 'bg-forest-50 border-forest-400 text-forest-900',
+    caution: 'bg-amber-50 border-amber-400 text-amber-900',
+    no: 'bg-red-50 border-red-400 text-red-900'
+  };
+  const vc = document.getElementById('verdict-card');
+  vc.className = `rounded-2xl p-5 border-2 fade-in flex items-start gap-4 ${vcMap[d.verdictClass]}`;
+  document.getElementById('verdict-icon').textContent = d.verdictIcon;
+  document.getElementById('verdict-title').textContent = d.verdict;
+  document.getElementById('verdict-desc').textContent =
+    `Your ${d.sqft.toLocaleString()} sq ft ${d.cfg.name} home needs an estimated ${d.tonsRounded}-ton cold-climate heat pump. ` +
+    `Design temperature: ${d.cfg.designTemp}°F. COP at design temp: ${d.COP}. ` +
+    `Estimated ${d.paybackYrs < 50 ? Math.round(d.paybackYrs * 10)/10 + '-year' : 'extended'} payback after incentives.`;
+
+  // Metrics
+  document.getElementById('m-load').textContent = Math.round(d.heatingLoad/1000) + 'k';
+  document.getElementById('m-tons').textContent = d.tonsRounded.toFixed(1) + 't';
+  document.getElementById('m-oil-cost').textContent = fmt(d.oilCostPerYear);
+  document.getElementById('m-hp-cost').textContent = fmt(d.hpCostPerYear);
+
+  // Big savings
+  document.getElementById('big-savings').textContent = d.annualSavings > 0 ? fmt(d.annualSavings) : `-${fmt(Math.abs(d.annualSavings))}`;
+  document.getElementById('savings-detail').textContent = d.annualSavings > 0
+    ? `You save ${fmt(d.annualSavings)}/yr switching from oil to heat pump`
+    : `Oil remains cheaper by ${fmt(Math.abs(d.annualSavings))}/yr at current rates`;
+  document.getElementById('m-payback').textContent = d.paybackYrs < 50 ? Math.round(d.paybackYrs * 10)/10 + ' yrs' : 'N/A';
+  document.getElementById('m-10yr').textContent = d.net10yr > 0 ? fmt(d.net10yr) : `-${fmt(Math.abs(d.net10yr))}`;
+  document.getElementById('m-net-install').textContent = fmt(d.netInstall);
+
+  // Bar chart
+  const maxVal = Math.max(d.oil10yr, d.hp10yr);
+  const oilPct = Math.round((d.oil10yr / maxVal) * 100);
+  const hpPct = Math.round((d.hp10yr / maxVal) * 100);
+  document.getElementById('chart-oil-label').textContent = fmt(d.oil10yr);
+  document.getElementById('chart-hp-label').textContent = fmt(d.hp10yr);
+  document.getElementById('chart-diff').textContent = d.net10yr > 0 ? `${fmt(d.net10yr)} saved` : `${fmt(Math.abs(d.net10yr))} more`;
+
+  setTimeout(() => {
+    const barOil = document.getElementById('bar-oil');
+    const barHp = document.getElementById('bar-hp');
+    barOil.style.width = oilPct + '%';
+    barHp.style.width = hpPct + '%';
+    barOil.querySelector('span').style.opacity = '1';
+    barHp.querySelector('span').style.opacity = '1';
+    barOil.querySelector('span').textContent = oilPct + '%';
+    barHp.querySelector('span').textContent = hpPct + '%';
+  }, 100);
+
+  // Panel
+  const panelBadge = document.getElementById('panel-badge');
+  panelBadge.textContent = d.panelOk ? '✓ Adequate' : '⚠ Review Needed';
+  panelBadge.className = `text-xs font-mono font-bold px-3 py-1 rounded-full ${d.panelOk ? 'bg-forest-100 text-forest-700' : 'bg-amber-100 text-amber-700'}`;
+  document.getElementById('panel-card').className = `bg-white rounded-2xl p-5 border shadow-sm fade-in ${d.panelOk ? 'border-forest-200' : 'border-amber-300'}`;
+
+  const panelRows = [
+    ['Panel Size', `${d.amps}A (${d.panelW.toLocaleString()}W capacity)`],
+    ['Est. General Load (NEC 220.82 demand)', `${Math.round(d.demandLoad).toLocaleString()}W`],
+    ['Heat Pump Added Load', `${d.hpLoadW.toLocaleString()}W (${d.tonsRounded}t unit)`],
+    ['Total Estimated Demand', `${Math.round(d.totalDemand).toLocaleString()}W`],
+    ['80% Safety Threshold', `${Math.round(d.panelW * 0.8).toLocaleString()}W`],
+    ['Verdict', d.panelOk ? '✓ Panel is likely adequate' : '⚠ Panel upgrade may be required — consult electrician'],
+  ];
+  document.getElementById('panel-rows').innerHTML = panelRows.map(([label, val], i) => `
+    <div class="flex items-center justify-between py-2 ${i < panelRows.length-1 ? 'border-b border-gray-50' : ''} check-item rounded px-2">
+      <span class="text-sm text-gray-500">${label}</span>
+      <span class="font-mono text-sm font-semibold ${i===5 ? (d.panelOk ? 'text-forest-600' : 'text-amber-600') : 'text-gray-700'}">${val}</span>
+    </div>
+  `).join('');
+
+  // Incentives table
+  const tbody = document.getElementById('incentives-table');
+  tbody.innerHTML = d.rebateRows.map(r => `
+    <div class="bg-forest-700/30 rounded-xl p-3 flex items-start justify-between gap-3 border border-forest-600/20">
+      <div class="flex-1 min-w-0">
+        <div class="text-white text-sm font-semibold leading-tight">${r.name}</div>
+        <div class="text-forest-300 text-xs mt-0.5">${r.detail}</div>
+        <span class="inline-block mt-1 text-xs font-mono bg-forest-600/40 text-forest-300 px-2 py-0.5 rounded">${r.type}</span>
+      </div>
+      <div class="text-right flex-shrink-0">
+        ${r.amt > 0
+          ? `<div class="font-display font-bold text-forest-300 text-lg">${fmt(r.amt)}</div>`
+          : r.note
+            ? `<div class="text-forest-400 text-xs font-mono">Varies</div>`
+            : `<div class="text-gray-500 text-xs font-mono">N/A</div>`
+        }
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('total-incentives').textContent = fmt(d.totalRebate) + '+';
+}
+
+// ── STEP MANAGEMENT ──
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById(`step-${i}`);
+    if (!el) continue;
+    const circle = el.querySelector('div');
+    const label = el.querySelector('span');
+    if (i <= n) {
+      if (circle) circle.className = circle.className.replace('bg-gray-200 text-gray-400', 'bg-forest-600 text-white');
+      if (label) label.className = label.className.replace('text-gray-400', 'text-forest-700 font-semibold');
+    }
+  }
+}
+
+function show(id) { document.getElementById(id) && document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id) && document.getElementById(id).classList.add('hidden'); }
+
+// ── STRIPE ──
+function handleStripeCheckout() {
+  const btn = document.getElementById('stripe-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="animate-spin">⏳</span> <span>Connecting to Stripe…</span>';
+  // In production: POST to /create-checkout-session, redirect to session.url
+  setTimeout(() => {
+    setStep(4);
+    hide('section-results');
+    show('section-success');
+    generateFullPDF();
+    document.getElementById('section-success').scrollIntoView({ behavior: 'smooth' });
+  }, 1500);
+}
+
+function downloadFreePreview() {
+  if (!analysisData) return;
+  generateFullPDF(true);
+}
+
+function resetApp() {
+  hide('section-success');
+  hide('section-results');
+  hide('section-loading');
+  show('section-form');
+  document.getElementById('analyze-btn').disabled = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════════════
+//  PDF GENERATION — 3 PAGES
+// ══════════════════════════════════════════════════════
+function generateFullPDF(watermark = false) {
+  if (!analysisData) return;
+  const d = analysisData;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+  const W = 612, H = 792;
+  const M = 48; // margin
+
+  // Color helpers
+  function rgb(...c) { doc.setTextColor(...c); }
+  function fill(...c) { doc.setFillColor(...c); }
+  function stroke(...c) { doc.setDrawColor(...c); }
+  function lw(w) { doc.setLineWidth(w); }
+  function rect(x,y,w,h,s='F') { doc.rect(x,y,w,h,s); }
+  function rRect(x,y,w,h,r=6,s='F') { doc.roundedRect(x,y,w,h,r,r,s); }
+  function text(t,x,y,opts={}) { doc.text(String(t),x,y,opts); }
+  function line(x1,y1,x2,y2) { doc.line(x1,y1,x2,y2); }
+
+  const C = {
+    ink:    [15,17,23],
+    forest: [22,101,52],
+    fLight: [240,253,244],
+    fMid:   [134,239,172],
+    fDark:  [5,46,22],
+    amber:  [217,119,6],
+    amLight:[254,243,199],
+    muted:  [107,114,128],
+    border: [229,231,235],
+    white:  [255,255,255],
+    red:    [185,28,28],
+    redLight:[254,226,226],
+  };
+
+  // ═══════════════════════════
+  //  PAGE 1: COVER + SAVINGS
+  // ═══════════════════════════
+  // Dark header bar
+  fill(...C.fDark);
+  rect(0, 0, W, 110);
+
+  // Accent stripe
+  fill(...C.forest);
+  rect(0, 108, W, 3);
+
+  // Logo area
+  fill(...C.forest);
+  rRect(M, 22, 34, 34, 4);
+  rgb(...C.white);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  text('⚡', M+9, 44);
+
+  doc.setFontSize(20);
+  doc.setFont('helvetica','bold');
+  rgb(...C.white);
+  text('OilToPump Proof', M+46, 36);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  rgb(134,239,172);
+  text('HEAT PUMP FEASIBILITY REPORT  ·  2026 EDITION', M+46, 52);
+
+  // Right side: date + zip
+  doc.setFontSize(9);
+  rgb(156,163,175);
+  text(`Generated: ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}`, W-M, 36, {align:'right'});
+  text(`ZIP: ${d.zip}  ·  ${d.cfg.name}`, W-M, 52, {align:'right'});
+
+  // Verdict badge
+  const vCols = {go:[22,101,52], caution:[217,119,6], no:[185,28,28]};
+  fill(...vCols[d.verdictClass]);
+  rRect(W-M-130, 68, 130, 32, 4);
+  rgb(...C.white);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  const vLabels = {go:'STRONG FIT', caution:'FEASIBLE', no:'REVIEW NEEDED'};
+  text(vLabels[d.verdictClass], W-M-65, 81, {align:'center'});
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  text(`~${d.paybackYrs<50?Math.round(d.paybackYrs*10)/10+'yr payback':'extended payback'}`, W-M-65, 93, {align:'center'});
+
+  let y = 130;
+
+  // Property summary band
+  fill(248,250,252);
+  rect(M, y, W-M*2, 56);
+  stroke(...C.border);
+  lw(0.5);
+  rect(M, y, W-M*2, 56, 'S');
+
+  const propSummary = [
+    ['Home Size', `${d.sqft.toLocaleString()} sq ft`],
+    ['Insulation', d.insulation.charAt(0).toUpperCase()+d.insulation.slice(1)],
+    ['Heating', d.heating==='forced_air'?'Forced Air':d.heating==='hydronic'?'Hydronic':'Steam'],
+    ['Annual Oil', `${d.gallons.toLocaleString()} gal`],
+    ['Design Temp', `${d.cfg.designTemp}°F`],
+    ['Panel', `${d.amps}A`],
+  ];
+  const colW2 = (W-M*2) / propSummary.length;
+  propSummary.forEach(([lbl,val],i) => {
+    const px = M + i*colW2 + colW2/2;
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    rgb(...C.muted);
+    text(lbl.toUpperCase(), px, y+16, {align:'center'});
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    rgb(...C.ink);
+    text(val, px, y+34, {align:'center'});
+  });
+
+  y += 68;
+
+  // Section: COST COMPARISON
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  rgb(...C.ink);
+  text('ANNUAL HEATING COST COMPARISON', M, y);
+  stroke(...C.fMid);
+  lw(0.7);
+  line(M, y+4, W-M, y+4);
+  y += 18;
+
+  // Two cost boxes
+  const bw = (W-M*2-12)/2;
+
+  // Oil box
+  fill(...C.amLight);
+  rRect(M, y, bw, 70, 6);
+  stroke(252,211,77);
+  lw(1.5);
+  rRect(M, y, bw, 70, 6, 'S');
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  rgb(180,83,9);
+  text('CURRENT OIL COST / YEAR', M+10, y+16);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(26);
+  rgb(217,119,6);
+  text(`$${Math.round(d.oilCostPerYear).toLocaleString()}`, M+10, y+46);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8.5);
+  rgb(180,83,9);
+  text(`${d.gallons.toLocaleString()} gal × $4.89/gal`, M+10, y+62);
+
+  // HP box
+  fill(...C.fLight);
+  rRect(M+bw+12, y, bw, 70, 6);
+  stroke(...C.fMid);
+  lw(1.5);
+  rRect(M+bw+12, y, bw, 70, 6, 'S');
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  rgb(...C.forest);
+  text('EST. HEAT PUMP COST / YEAR', M+bw+22, y+16);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(26);
+  rgb(...C.forest);
+  text(`$${Math.round(d.hpCostPerYear).toLocaleString()}`, M+bw+22, y+46);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8.5);
+  rgb(21,128,61);
+  text(`COP ${d.COP} @ ${d.cfg.designTemp}°F · ${(d.elecRate*100).toFixed(1)}¢/kWh`, M+bw+22, y+62);
+
+  y += 82;
+
+  // Savings hero
+  fill(...C.fDark);
+  rRect(M, y, W-M*2, 52, 8);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  rgb(134,239,172);
+  text('ESTIMATED ANNUAL SAVINGS', M+16, y+18);
+  doc.setFontSize(28);
+  rgb(...C.white);
+  const savText = d.annualSavings > 0 ? fmt(d.annualSavings) : `–${fmt(Math.abs(d.annualSavings))}`;
+  text(savText, M+16, y+42);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  rgb(134,239,172);
+  text('per year switching from oil to heat pump', W-M-10, y+42, {align:'right'});
+
+  y += 64;
+
+  // Visual bar chart — simple proportional bars
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  rgb(...C.ink);
+  text('10-YEAR CUMULATIVE COST COMPARISON', M, y);
+  stroke(...C.border);
+  lw(0.7);
+  line(M, y+4, W-M, y+4);
+  y += 18;
+
+  const chartW = W-M*2;
+  const maxV = Math.max(d.oil10yr, d.hp10yr);
+  const oilBar = (d.oil10yr/maxV) * chartW * 0.92;
+  const hpBar = (d.hp10yr/maxV) * chartW * 0.92;
+
+  // Oil bar
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  rgb(...C.muted);
+  text('Oil (fuel cost only, 10 yrs)', M, y+11);
+  fill(251,191,36);
+  rRect(M, y+15, oilBar, 22, 3);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  rgb(120,53,15);
+  text(fmt(d.oil10yr), M+oilBar+6, y+30);
+
+  y += 48;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  rgb(...C.muted);
+  text(`Heat Pump (install $${Math.round(d.baseInstall/1000)}k – $${Math.round(d.totalRebate/1000)}k rebates + 10yr ops)`, M, y+11);
+  fill(34,197,94);
+  rRect(M, y+15, hpBar, 22, 3);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  rgb(5,46,22);
+  text(fmt(d.hp10yr), M+hpBar+6, y+30);
+
+  y += 52;
+
+  // 10yr advantage badge
+  fill(d.net10yr > 0 ? 5 : 185, d.net10yr > 0 ? 150 : 28, d.net10yr > 0 ? 105 : 28, 0.12);
+  rRect(M, y, W-M*2, 28, 4);
+  stroke(d.net10yr > 0 ? 34 : 220, d.net10yr > 0 ? 197 : 38, d.net10yr > 0 ? 94 : 38);
+  lw(1);
+  rRect(M, y, W-M*2, 28, 4, 'S');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  rgb(...(d.net10yr > 0 ? C.forest : C.red));
+  text(
+    d.net10yr > 0
+      ? `10-Year Net Advantage of Heat Pump: ${fmt(d.net10yr)} saved`
+      : `10-Year Net: Oil is ${fmt(Math.abs(d.net10yr))} cheaper over 10 years`,
+    W/2, y+18, {align:'center'}
+  );
+
+  y += 42;
+
+  // Calculation notes
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  rgb(...C.ink);
+  text('HEATING LOAD CALCULATION', M, y);
+  stroke(...C.border);
+  lw(0.5);
+  line(M, y+4, W-M, y+4);
+  y += 16;
+
+  const calcRows = [
+    ['Sq Ft × BTU/sq ft Factor', `${d.sqft.toLocaleString()} × ${d.btuPerSqFt} = ${Math.round(d.heatingLoad).toLocaleString()} BTU/hr peak`],
+    ['Recommended Heat Pump Size', `${d.tonsRounded} tons (${Math.round(d.tonsRounded*12).toLocaleString()}k BTU/hr)`],
+    ['Annual Oil BTU Equivalent', `${Math.round(d.annualOilBTU/1000000*10)/10}M BTU (${d.gallons}gal × 138,500 × ${Math.round(d.oilEff*100)}% eff)`],
+    ['HP Annual kWh Required', `${Math.round(d.hpKwhPerYear).toLocaleString()} kWh (COP ${d.COP} at design temp ${d.cfg.designTemp}°F)`],
+    ['Oil Price Used', '$4.89/gallon (Northeast average, 2026)'],
+    ['Electricity Rate Used', `${(d.elecRate*100).toFixed(1)}¢/kWh`],
+  ];
+  calcRows.forEach(([lbl,val]) => {
+    fill(248,250,252);
+    rect(M, y, W-M*2, 20);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    rgb(...C.muted);
+    text(lbl, M+6, y+13);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8.5);
+    rgb(...C.ink);
+    text(val, W-M-6, y+13, {align:'right'});
+    y += 22;
+  });
+
+  // Panel check
+  y += 8;
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  rgb(...C.ink);
+  text('ELECTRICAL PANEL ASSESSMENT (NEC 220.82)', M, y);
+  line(M, y+4, W-M, y+4);
+  y += 14;
+
+  const panelRows2 = [
+    [`Panel Capacity (${d.amps}A)`, `${Math.round(d.panelW).toLocaleString()}W`],
+    ['Estimated Demand Load (220.82)', `${Math.round(d.demandLoad).toLocaleString()}W`],
+    ['Heat Pump Additional Load', `${d.hpLoadW.toLocaleString()}W`],
+    ['Total Estimated Demand', `${Math.round(d.totalDemand).toLocaleString()}W`],
+    ['80% Panel Threshold', `${Math.round(d.panelW*0.8).toLocaleString()}W`],
+    ['Assessment', d.panelOk ? '✓ Panel likely adequate' : '⚠ Upgrade likely required — consult licensed electrician'],
+  ];
+  panelRows2.forEach(([lbl,val],i) => {
+    fill(i%2===0 ? 248 : 255, 250, 252);
+    rect(M, y, W-M*2, 19);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    rgb(...C.muted);
+    text(lbl, M+6, y+12);
+    doc.setFont('helvetica','bold');
+    const isFinal = i === panelRows2.length - 1;
+    rgb(...(isFinal ? (d.panelOk ? C.forest : C.red) : C.ink));
+    text(val, W-M-6, y+12, {align:'right'});
+    y += 21;
+  });
+
+  // Footer page 1
+  fill(...C.fDark);
+  rect(0, H-36, W, 36);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  rgb(134,239,172);
+  text('OilToPump Proof  ·  oiltopump.com  ·  Page 1 of 3', W/2, H-16, {align:'center'});
+
+  if (watermark) {
+    doc.saveGraphicsState();
+    rgb(200,200,200);
+    doc.setFontSize(48);
+    doc.setGState(new doc.GState({opacity: 0.15}));
+    doc.text('PREVIEW ONLY', W/2, H/2, {align:'center', angle:45});
+    doc.restoreGraphicsState();
+  }
+
+  // ═══════════════════════════════
+  //  PAGE 2: REBATES & FINANCING
+  // ═══════════════════════════════
+  doc.addPage();
+  y = 0;
+
+  fill(...C.fDark);
+  rect(0, 0, W, 80);
+  fill(...C.forest);
+  rect(0, 78, W, 3);
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(20);
+  rgb(...C.white);
+  text('OilToPump Proof', M, 32);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  rgb(134,239,172);
+  text('PAGE 2 OF 3  ·  2026 INCENTIVES, REBATES & FINANCING', M, 46);
+  doc.setFontSize(8);
+  rgb(156,163,175);
+  text(`${d.cfg.name}  ·  ZIP ${d.zip}`, W-M, 32, {align:'right'});
+
+  y = 102;
+
+  // Header
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  rgb(...C.fDark);
+  text(`2026 Incentives for ${d.cfg.name}`, M, y);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9.5);
+  rgb(...C.muted);
+  text(`Estimated ${d.tonsRounded}-ton system. Stack all applicable programs for maximum savings.`, M, y+16);
+  y += 30;
+
+  // Federal expiry warning
+  fill(...[254,226,226]);
+  rRect(M, y, W-M*2, 32, 5);
+  stroke(...[252,165,165]);
+  lw(1);
+  rRect(M, y, W-M*2, 32, 5, 'S');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  rgb(185,28,28);
+  text('⚠  Federal 25C Tax Credit Expired in 2025', M+10, y+14);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8.5);
+  rgb(153,27,27);
+  text('The IRA residential clean energy tax credits (25C/25D) were not extended past December 31, 2025. State programs below remain active.', M+10, y+26);
+  y += 44;
+
+  // Rebate table header
+  fill(...C.fDark);
+  rRect(M, y, W-M*2, 22, 4);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8.5);
+  rgb(...C.white);
+  text('Program Name', M+8, y+14);
+  text('Type', M+270, y+14);
+  text('Est. Amount', W-M-8, y+14, {align:'right'});
+  y += 24;
+
+  d.rebateRows.forEach((r,i) => {
+    fill(i%2===0 ? 240 : 255, i%2===0 ? 253 : 255, i%2===0 ? 244 : 255);
+    rect(M, y, W-M*2, 34);
+    stroke(...C.border);
+    lw(0.3);
+    rect(M, y, W-M*2, 34, 'S');
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    rgb(...C.ink);
+    text(r.name, M+8, y+13);
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7.5);
+    rgb(...C.muted);
+    text(r.detail, M+8, y+26);
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7.5);
+    fill(r.type.includes('Loan')||r.type.includes('Financing') ? 219 : r.type.includes('Low') ? 254 : 220,
+         r.type.includes('Loan')||r.type.includes('Financing') ? 234 : r.type.includes('Low') ? 226 : 252,
+         r.type.includes('Loan')||r.type.includes('Financing') ? 254 : r.type.includes('Low') ? 226 : 209);
+    rRect(M+270, y+6, 90, 14, 3);
+    rgb(r.type.includes('Loan')||r.type.includes('Financing') ? 30 : r.type.includes('Low') ? 180 : 22,
+        r.type.includes('Loan')||r.type.includes('Financing') ? 64 : r.type.includes('Low') ? 28 : 101,
+        r.type.includes('Loan')||r.type.includes('Financing') ? 175 : r.type.includes('Low') ? 28 : 52);
+    text(r.type, M+315, y+16, {align:'center'});
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    rgb(...(r.amt > 0 ? C.forest : C.muted));
+    text(r.amt > 0 ? fmt(r.amt) : (r.note ? 'Varies' : 'N/A'), W-M-8, y+20, {align:'right'});
+
+    y += 36;
+  });
+
+  // Total row
+  fill(...C.fDark);
+  rect(M, y, W-M*2, 28);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  rgb(...C.white);
+  text('Total Cash Rebates (excludes loans/financing)', M+8, y+18);
+  doc.setFontSize(14);
+  rgb(134,239,172);
+  text(`${fmt(d.totalRebate)}+`, W-M-8, y+19, {align:'right'});
+  y += 38;
+
+  // NE Accelerator box
+  fill(240,253,244);
+  rRect(M, y, W-M*2, 58, 6);
+  stroke(134,239,172);
+  lw(1.5);
+  rRect(M, y, W-M*2, 58, 6, 'S');
+
+  fill(...C.forest);
+  rRect(M+8, y+10, 22, 14, 4);
+  rgb(...C.white);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8);
+  text('NEW', M+19, y+20, {align:'center'});
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  rgb(...C.fDark);
+  text('New England Heat Pump Accelerator Program', M+38, y+20);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8.5);
+  rgb(...C.muted);
+  const neText = doc.splitTextToSize('Additional $500–$700 savings available through the NE Heat Pump Accelerator. Participating contractors apply discounts at point of sale — reducing your upfront cost before rebate filing. Ask your installer if they are a participating contractor.', W-M*2-50);
+  doc.text(neText, M+38, y+34);
+  y += 68;
+
+  // Financing options section
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  rgb(...C.ink);
+  text('FINANCING OPTIONS', M, y);
+  stroke(...C.border);
+  lw(0.5);
+  line(M, y+5, W-M, y+5);
+  y += 18;
+
+  const financingOpts = [
+    { name: '0% HEAT Loan (MA only)', detail: 'Mass Save offers 0% interest financing up to $25,000 for MA homeowners. Terms up to 7 years.', label: '0% APR' },
+    { name: '0.99% HVAC Loan (CT)', detail: 'Energize CT Green Bank loan at 0.99% APR. Up to $25,000, 5–7 year terms.', label: '0.99% APR' },
+    { name: 'PACE Financing', detail: 'Property Assessed Clean Energy: repay via property tax bill. Available in most NE states. No upfront cost.', label: 'No upfront' },
+    { name: 'Comfort Home Loan (ME)', detail: 'Efficiency Maine\'s Comfort Home loan at market rates with expedited approval for HP installations.', label: 'Low rate' },
+    { name: 'Manufacturer Financing', detail: 'Mitsubishi, Daikin, Bosch, and others offer 12–18 month 0% financing through certified dealers.', label: '0–12 mo 0%' },
+  ];
+
+  financingOpts.forEach((f,i) => {
+    fill(i%2===0 ? 249 : 255, 250, 252);
+    rect(M, y, W-M*2, 30);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    rgb(...C.ink);
+    text(f.name, M+8, y+12);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    rgb(...C.muted);
+    text(f.detail, M+8, y+24);
+    fill(220,252,231);
+    rRect(W-M-56, y+7, 50, 16, 3);
+    rgb(...C.forest);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    text(f.label, W-M-31, y+18, {align:'center'});
+    y += 32;
+  });
+
+  // Net install summary
+  y += 8;
+  fill(5,46,22);
+  rRect(M, y, W-M*2, 46, 6);
+  rgb(134,239,172);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  text('ESTIMATED NET INSTALLATION COST AFTER REBATES', M+12, y+16);
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica','normal');
+  rgb(167,243,208);
+  text(`Gross install est. ${fmt(d.baseInstall)}  –  Rebates ${fmt(d.totalRebate)}  =  Net cost ${fmt(d.netInstall)}`, M+12, y+32);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  rgb(74,222,128);
+  text(fmt(d.netInstall), W-M-12, y+34, {align:'right'});
+
+  // Footer p2
+  fill(...C.fDark);
+  rect(0, H-36, W, 36);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  rgb(134,239,172);
+  text('OilToPump Proof  ·  Rebate amounts are estimates. Verify with program administrator.  ·  Page 2 of 3', W/2, H-16, {align:'center'});
+
+  if (watermark) {
+    doc.saveGraphicsState();
+    rgb(200,200,200);
+    doc.setFontSize(48);
+    doc.setGState(new doc.GState({opacity: 0.15}));
+    doc.text('PREVIEW ONLY', W/2, H/2, {align:'center', angle:45});
+    doc.restoreGraphicsState();
+  }
+
+  // ════════════════════════════════════════
+  //  PAGE 3: INSTALLER / ELECTRICIAN CHECKLIST
+  // ════════════════════════════════════════
+  doc.addPage();
+  y = 0;
+
+  fill(...C.fDark);
+  rect(0, 0, W, 80);
+  fill(...C.forest);
+  rect(0, 78, W, 3);
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(20);
+  rgb(...C.white);
+  text('OilToPump Proof', M, 32);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  rgb(134,239,172);
+  text('PAGE 3 OF 3  ·  INSTALLER & ELECTRICIAN CHECKLIST', M, 46);
+  rgb(156,163,175);
+  doc.setFontSize(8);
+  text(d.cfg.name + '  ·  ZIP ' + d.zip, W-M, 32, {align:'right'});
+  text(`${d.tonsRounded}-ton system  ·  ${d.amps}A panel`, W-M, 46, {align:'right'});
+
+  y = 102;
+
+  // Bold header
+  fill(240,253,244);
+  rRect(M, y, W-M*2, 46, 6);
+  stroke(134,239,172);
+  lw(2);
+  rRect(M, y, W-M*2, 46, 6, 'S');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(14);
+  rgb(5,46,22);
+  text('✅  Hand This Page to Your Licensed HVAC Pro & Electrician', M+12, y+20);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  rgb(21,128,61);
+  text(`Confirm all 15 items before installation day. Site: ${d.zip} · ${d.sqft.toLocaleString()} sq ft · ${d.tonsRounded}-ton system · ${d.amps}A panel`, M+12, y+36);
+
+  y += 58;
+
+  // Divider into two sections
+  const checklistItems = [
+    {
+      section: '⚡ ELECTRICAL & PANEL',
+      color: [234,179,8],
+      items: [
+        { id:'E1', label:'Panel Capacity Verified', detail:`Confirm ${d.amps}A panel can support ${d.hpLoadW}W HP load. NEC 220.82 demand calc on file. ${!d.panelOk ? 'UPGRADE LIKELY REQUIRED.' : 'Appears adequate.'}` },
+        { id:'E2', label:'Dedicated Circuit Installed', detail:`240V dedicated 40–60A circuit run to outdoor unit location. Breaker sized per manufacturer spec.` },
+        { id:'E3', label:'Wiring Gauge Confirmed', detail:`Conductor sizing per NEC 440. Typically #8 AWG for ≤40A, #6 AWG for ≤55A. Armored cable or conduit in exposed areas.` },
+        { id:'E4', label:'Disconnect & Weatherhead', detail:`Lockable outdoor disconnect within sight of unit. NEMA 3R rated. Weatherhead sealed per local code.` },
+        { id:'E5', label:'Permit Pulled — Electrical', detail:`Electrical permit obtained from local AHJ. Inspector sign-off scheduled before energizing.` },
+      ]
+    },
+    {
+      section: '🏠 HVAC & EQUIPMENT',
+      color: [22,101,52],
+      items: [
+        { id:'H1', label:'Outdoor Unit Placement', detail:`Unit on concrete pad or wall-mounted brackets. Min 6" clearance sides, 18" front, 12" top. Out of snow drift zone. Per manufacturer clearances.` },
+        { id:'H2', label:'Refrigerant Line Set', detail:`Properly sized copper line set (typically 3/8" liquid, 3/4" suction for 2–3 ton). Insulated, supported every 48", protected from UV.` },
+        { id:'H3', label:'Indoor Unit / AHU Location', detail:`Air handler or cassette location confirmed. Return air path adequate. Filter access unobstructed. Condensate drain pitch verified.` },
+        { id:'H4', label:'Condensate Drain', detail:`Condensate line routed to drain, pitched ≥1/4" per foot. P-trap installed if required. No blockage points. Winter drainage confirmed.` },
+        { id:'H5', label:'Duct System Assessment', detail:`Existing ductwork leakage test if applicable. Balancing dampers adjusted. Supply/return sizing adequate for HP airflow (≥400 CFM/ton).` },
+      ]
+    },
+    {
+      section: '🛢️ OIL SYSTEM DECOMMISSION',
+      color: [217,119,6],
+      items: [
+        { id:'O1', label:'Oil Tank Removal / Abandonment', detail:`Above-ground tank: drain, clean, remove or fill with sand per local code. Underground: licensed tank removal contractor, soil test required.` },
+        { id:'O2', label:'Oil Burner & Lines Removed', detail:`Burner disconnected, oil lines capped or removed. Chimney flue sealed if no longer needed. Carbon monoxide detector installed.` },
+      ]
+    },
+    {
+      section: '📋 COMMISSIONING & CLOSEOUT',
+      color: [79,70,229],
+      items: [
+        { id:'C1', label:'System Commissioning', detail:`Refrigerant charge verified (weighing or superheat/subcooling). Airflow measured. Heating and cooling test cycles run. Performance logged.` },
+        { id:'C2', label:'Permits & Final Inspection', detail:`HVAC permit and inspection completed. Electrical final inspection passed. All paperwork provided to homeowner.` },
+        { id:'C3', label:'Rebate Applications Filed', detail:`Mass Save / state program rebate application submitted. Serial numbers, model numbers, contractor license # on file. Timeline noted.` },
+      ]
+    }
+  ];
+
+  checklistItems.forEach((section) => {
+    // Section header
+    fill(...section.color);
+    rRect(M, y, W-M*2, 22, 4);
+    rgb(...C.white);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    text(section.section, M+10, y+15);
+    y += 26;
+
+    section.items.forEach((item, i) => {
+      const rowH = 36;
+      fill(i%2===0 ? 249 : 255, 250, 252);
+      rect(M, y, W-M*2, rowH);
+      stroke(...C.border);
+      lw(0.3);
+      rect(M, y, W-M*2, rowH, 'S');
+
+      // Checkbox
+      stroke(...C.border);
+      lw(1);
+      doc.rect(M+8, y+10, 14, 14, 'S');
+
+      // ID badge
+      fill(...section.color, 0.15);
+      doc.setFillColor(section.color[0]+180, section.color[1]+130, section.color[2]+100);
+      if (section.color[0] > 100) doc.setFillColor(254,249,195);
+      else if (section.color[0] < 30) doc.setFillColor(220,252,231);
+      else doc.setFillColor(224,231,255);
+      rRect(M+28, y+9, 22, 16, 3);
+
+      rgb(...section.color);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(7.5);
+      text(item.id, M+39, y+20, {align:'center'});
+
+      // Label
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9.5);
+      rgb(...C.ink);
+      text(item.label, M+58, y+14);
+
+      // Detail
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7.5);
+      rgb(...C.muted);
+      const detailLines = doc.splitTextToSize(item.detail, W-M*2-68);
+      doc.text(detailLines.slice(0,1), M+58, y+26);
+
+      y += rowH;
+    });
+
+    y += 6;
+  });
+
+  // Signature block
+  y += 6;
+  stroke(...C.border);
+  lw(0.5);
+  line(M, y, W-M, y);
+  y += 16;
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  rgb(...C.ink);
+  text('CONTRACTOR SIGN-OFF', M, y);
+  y += 14;
+
+  const sigFields = [
+    ['HVAC Contractor', 'License #', 'Date'],
+    ['Electrician', 'License #', 'Date'],
+    ['Homeowner', 'Address', 'Date'],
+  ];
+  const sigW = (W-M*2) / 3;
+  sigFields.forEach((row, ri) => {
+    row.forEach((label, ci) => {
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      rgb(...C.muted);
+      text(label, M + ci*sigW + 4, y+10);
+      stroke(...C.border);
+      lw(0.5);
+      line(M + ci*sigW + 2, y+24, M + (ci+1)*sigW - 8, y+24);
+    });
+    y += 34;
+  });
+
+  // Footer
+  fill(...C.fDark);
+  rect(0, H-52, W, 52);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  rgb(134,239,172);
+  text('OilToPump Proof  ·  Page 3 of 3', W/2, H-36, {align:'center'});
+  rgb(107,114,128);
+  const disc2 = 'DISCLAIMER: This checklist is a guide only and does not replace site assessment by licensed professionals. Actual requirements vary by jurisdiction, equipment, and site conditions. Always follow local codes, manufacturer specifications, and the direction of licensed HVAC and electrical contractors.';
+  const discLines2 = doc.splitTextToSize(disc2, W-M*2);
+  doc.text(discLines2, W/2, H-22, {align:'center'});
+
+  if (watermark) {
+    doc.saveGraphicsState();
+    rgb(200,200,200);
+    doc.setFontSize(48);
+    doc.setGState(new doc.GState({opacity: 0.15}));
+    doc.text('PREVIEW ONLY', W/2, H/2, {align:'center', angle:45});
+    doc.restoreGraphicsState();
+  }
+
+  const fname = watermark
+    ? `OilToPump-Preview-${d.zip}.pdf`
+    : `OilToPump-Report-${d.zip}-${new Date().toISOString().slice(0,10)}.pdf`;
+  doc.save(fname);
+}
+</script>
+</body>
+</html>
